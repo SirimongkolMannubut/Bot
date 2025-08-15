@@ -8,7 +8,7 @@ import json
 def index(request):
     context = {
         'client_id': getenv('DISCORD_CLIENT_ID', '1405862446295552040'),
-        'redirect_uri': getenv('DISCORD_REDIRECT_URI', 'http://127.0.0.1:8000/callback/')
+        'redirect_uri': getenv('DISCORD_REDIRECT_URI', 'https://bot-sb53.onrender.com/callback/')
     }
     return render(request, 'discordapp/index.html', context)
 
@@ -22,7 +22,7 @@ def discord_callback(request):
         'client_secret': getenv('DISCORD_CLIENT_SECRET', 'XaJ6KmP9R9SmgA5fdtKYrrx-zeqhUpna'),
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': getenv('DISCORD_REDIRECT_URI', 'http://127.0.0.1:8000/callback/'),
+        'redirect_uri': getenv('DISCORD_REDIRECT_URI', 'https://bot-sb53.onrender.com/callback/'),
         'scope': 'bot applications.commands'
     }
 
