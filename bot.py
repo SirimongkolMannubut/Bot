@@ -14,6 +14,8 @@ TOKEN = getenv('DISCORD_BOT_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
+intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -118,6 +120,86 @@ async def image_slash(interaction: discord.Interaction, prompt: str):
 @bot.tree.command(name="draw", description="Draw an image using AI")
 async def draw_slash(interaction: discord.Interaction, prompt: str):
     await generate_image_once(prompt, interaction=interaction)
+
+# Member join event
+@bot.event
+async def on_member_join(member):
+    channel = member.guild.system_channel
+    if channel:
+        embed = discord.Embed(
+            title="🎉 สมาชิกใหม่!", 
+            description=f"{member.mention} เข้าร่วมเซิร์ฟเวอร์!", 
+            color=discord.Color.green()
+        )
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.add_field(name="ชื่อ", value=member.name, inline=True)
+        embed.add_field(name="ID", value=member.id, inline=True)
+        await channel.send(embed=embed)
+
+# Member leave event
+@bot.event
+async def on_member_remove(member):
+    channel = member.guild.system_channel
+    if channel:
+        embed = discord.Embed(
+            title="👋 ลาก่อน", 
+            description=f"{member.name} ออกจากเซิร์ฟเวอร์!", 
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=member.display_avatar.url)
+        await channel.send(embed=embed)
+
+# Member update event (nickname changes)
+@bot.event
+async def on_member_update(before, after):
+    if before.nick != after.nick:
+        channel = after.guild.system_channel
+        if channel:
+            old_nick = before.nick or before.name
+            new_nick = after.nick or after.name
+            embed = discord.Embed(
+                title="✏️ เปลี่ยนชื่อ", 
+                description=f"{after.mention} เปลี่ยนชื่อแล้ว", 
+                color=discord.Color.blue()
+            )
+            embed.add_field(name="ชื่อเดิม", value=old_nick, inline=True)
+            embed.add_field(name="ชื่อใหม่", value=new_nick, inline=True)
+            await channel.send(embed=embed)
+
+# Message delete event
+@bot.event
+async def on_message_delete(message):
+    if message.author.bot:
+        return  # Ignore bot messages
+    
+    channel = message.channel
+    embed = discord.Embed(
+        title="🗑️ ข้อความถูกลบ", 
+        description=f"ข้อความจาก {message.author.mention} ถูกลบ", 
+        color=discord.Color.orange()
+    )
+    embed.add_field(name="เนื้อหา", value=message.content[:1000] if message.content else "ไม่มีข้อความ", inline=False)
+    embed.add_field(name="ช่อง", value=channel.mention, inline=True)
+    embed.set_footer(text=f"User ID: {message.author.id}")
+    await channel.send(embed=embed)
+
+# Message edit event
+@bot.event
+async def on_message_edit(before, after):
+    if before.author.bot or before.content == after.content:
+        return  # Ignore bot messages and non-content changes
+    
+    channel = after.channel
+    embed = discord.Embed(
+        title="✏️ ข้อความถูกแก้ไข", 
+        description=f"{after.author.mention} แก้ไขข้อความ", 
+        color=discord.Color.yellow()
+    )
+    embed.add_field(name="ก่อน", value=before.content[:500] if before.content else "ไม่มีข้อความ", inline=False)
+    embed.add_field(name="หลัง", value=after.content[:500] if after.content else "ไม่มีข้อความ", inline=False)
+    embed.add_field(name="ช่อง", value=channel.mention, inline=True)
+    embed.set_footer(text=f"User ID: {after.author.id}")
+    await channel.send(embed=embed)
 
 if __name__ == "__main__":
     if TOKEN:
