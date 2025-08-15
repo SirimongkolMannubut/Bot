@@ -245,6 +245,97 @@ async def on_message_edit(before, after):
     embed.set_footer(text=f"User ID: {after.author.id}")
     await channel.send(embed=embed)
 
+# NSFW channel commands
+@bot.command(name="nsfw")
+async def nsfw_message(ctx):
+    if ctx.channel.is_nsfw():
+        embed = discord.Embed(
+            title="✅ NSFW Channel", 
+            description="นี่คือข้อความสำหรับช่อง NSFW เท่านั้น!", 
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+
+@bot.command(name="nsfw_image")
+async def nsfw_image(ctx, *, prompt="NSFW content"):
+    if not ctx.channel.is_nsfw():
+        await ctx.send("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+        return
+    
+    global is_generating
+    if is_generating:
+        await ctx.send("⏳ รอให้บอทสร้างภาพเสร็จก่อนนะ")
+        return
+    
+    is_generating = True
+    msg = None
+    
+    try:
+        msg = await ctx.send(f"⏳ กำลังสร้างภาพ NSFW: `{prompt}` ...")
+        
+        encoded_prompt = urllib.parse.quote(prompt)
+        image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+        
+        embed = discord.Embed(title=f"🔞 ผลลัพธ์ NSFW: {prompt}", color=discord.Color.red())
+        embed.set_image(url=image_url)
+        embed.set_footer(text="⚠️ NSFW Content - 18+ Only")
+        
+        await msg.edit(content="", embed=embed)
+        
+    except Exception as e:
+        error_msg = f"❌ เกิดข้อผิดพลาด: {str(e)}"
+        if msg:
+            await msg.edit(content=error_msg)
+        else:
+            await ctx.send(error_msg)
+    finally:
+        is_generating = False
+
+# NSFW slash commands
+@bot.tree.command(name="nsfw", description="Check if channel is NSFW")
+async def nsfw_slash(interaction: discord.Interaction):
+    if interaction.channel.is_nsfw():
+        embed = discord.Embed(
+            title="✅ NSFW Channel", 
+            description="นี่คือข้อความสำหรับช่อง NSFW เท่านั้น!", 
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed)
+    else:
+        await interaction.response.send_message("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+
+@bot.tree.command(name="nsfw_image", description="Generate NSFW image (NSFW channels only)")
+async def nsfw_image_slash(interaction: discord.Interaction, prompt: str):
+    if not interaction.channel.is_nsfw():
+        await interaction.response.send_message("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+        return
+    
+    global is_generating
+    if is_generating:
+        await interaction.response.send_message("⏳ รอให้บอทสร้างภาพเสร็จก่อนนะ")
+        return
+    
+    is_generating = True
+    
+    try:
+        await interaction.response.defer()
+        
+        encoded_prompt = urllib.parse.quote(prompt)
+        image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+        
+        embed = discord.Embed(title=f"🔞 ผลลัพธ์ NSFW: {prompt}", color=discord.Color.red())
+        embed.set_image(url=image_url)
+        embed.set_footer(text="⚠️ NSFW Content - 18+ Only")
+        
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        await interaction.followup.send(f"❌ เกิดข้อผิดพลาด: {str(e)}")
+    finally:
+        is_generating = False
+
 if __name__ == "__main__":
     if TOKEN:
         bot.run(TOKEN)
