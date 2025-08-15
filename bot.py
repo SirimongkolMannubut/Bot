@@ -248,20 +248,25 @@ async def on_message_edit(before, after):
 # NSFW channel commands
 @bot.command(name="nsfw")
 async def nsfw_message(ctx):
-    if ctx.channel.is_nsfw():
+    is_nsfw_channel = ctx.channel.is_nsfw() or ctx.channel.name.lower() == "nsfw"
+    
+    if is_nsfw_channel:
         embed = discord.Embed(
             title="✅ NSFW Channel", 
-            description="นี่คือข้อความสำหรับช่อง NSFW เท่านั้น!", 
+            description=f"นี่คือโซน NSFW!", 
             color=discord.Color.red()
         )
+        embed.add_field(name="ชื่อช่อง", value=ctx.channel.name, inline=True)
+        embed.add_field(name="NSFW Flag", value="✅" if ctx.channel.is_nsfw() else "❌", inline=True)
         await ctx.send(embed=embed)
     else:
-        await ctx.send("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+        await ctx.send("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW หรือช่องชื่อ 'nsfw' เท่านั้น!")
 
 @bot.command(name="nsfw_image")
 async def nsfw_image(ctx, *, prompt="NSFW content"):
-    if not ctx.channel.is_nsfw():
-        await ctx.send("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+    # Check both NSFW flag and channel name
+    if not ctx.channel.is_nsfw() and ctx.channel.name.lower() != "nsfw":
+        await ctx.send("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW หรือช่องชื่อ 'nsfw' เท่านั้น!")
         return
     
     global is_generating
@@ -296,20 +301,25 @@ async def nsfw_image(ctx, *, prompt="NSFW content"):
 # NSFW slash commands
 @bot.tree.command(name="nsfw", description="Check if channel is NSFW")
 async def nsfw_slash(interaction: discord.Interaction):
-    if interaction.channel.is_nsfw():
+    is_nsfw_channel = interaction.channel.is_nsfw() or interaction.channel.name.lower() == "nsfw"
+    
+    if is_nsfw_channel:
         embed = discord.Embed(
             title="✅ NSFW Channel", 
-            description="นี่คือข้อความสำหรับช่อง NSFW เท่านั้น!", 
+            description=f"นี่คือโซน NSFW!", 
             color=discord.Color.red()
         )
+        embed.add_field(name="ชื่อช่อง", value=interaction.channel.name, inline=True)
+        embed.add_field(name="NSFW Flag", value="✅" if interaction.channel.is_nsfw() else "❌", inline=True)
         await interaction.response.send_message(embed=embed)
     else:
-        await interaction.response.send_message("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+        await interaction.response.send_message("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW หรือช่องชื่อ 'nsfw' เท่านั้น!")
 
 @bot.tree.command(name="nsfw_image", description="Generate NSFW image (NSFW channels only)")
 async def nsfw_image_slash(interaction: discord.Interaction, prompt: str):
-    if not interaction.channel.is_nsfw():
-        await interaction.response.send_message("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW เท่านั้น!")
+    # Check both NSFW flag and channel name
+    if not interaction.channel.is_nsfw() and interaction.channel.name.lower() != "nsfw":
+        await interaction.response.send_message("❌ คำสั่งนี้ใช้ได้เฉพาะช่อง NSFW หรือช่องชื่อ 'nsfw' เท่านั้น!")
         return
     
     global is_generating
