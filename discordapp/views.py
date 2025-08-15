@@ -35,7 +35,7 @@ def discord_callback(request):
                 access_token = token_info.get('access_token')
                 
                 if access_token:
-                    # Get user info from Discord API
+                    # Get user info from Discord API (OAuth2 User Token)
                     headers = {"Authorization": f"Bearer {access_token}"}
                     user_response = get("https://discord.com/api/users/@me", headers=headers)
                     
@@ -43,7 +43,18 @@ def discord_callback(request):
                         user_info = user_response.json()
                         username = html.escape(user_info.get('username', 'Unknown'))
                         user_id = html.escape(str(user_info.get('id', 'Unknown')))
-                        return HttpResponse(f"Success! User: {username} (ID: {user_id})")
+                        
+                        # Also get bot info using Bot Token
+                        bot_token = getenv('DISCORD_BOT_TOKEN')
+                        if bot_token:
+                            bot_headers = {"Authorization": f"Bot {bot_token}"}
+                            bot_response = get("https://discord.com/api/users/@me", headers=bot_headers)
+                            if bot_response.status_code == 200:
+                                bot_info = bot_response.json()
+                                bot_name = html.escape(bot_info.get('username', 'Unknown'))
+                                return HttpResponse(f"✅ OAuth2 Success!<br>User: {username} (ID: {user_id})<br>Bot: {bot_name} is ready!")
+                        
+                        return HttpResponse(f"✅ OAuth2 Success! User: {username} (ID: {user_id})")
                     else:
                         return HttpResponse(f"Token valid but failed to get user info: {user_response.status_code}")
                 else:
