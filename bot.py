@@ -69,11 +69,12 @@ async def generate_image_once(prompt, ctx=None, interaction=None):
         return
     
     is_generating = True
+    msg = None
     
     try:
         loading_msg = f"⏳ กำลังสร้างภาพ: `{prompt}` ..."
         if ctx:
-            await ctx.send(loading_msg)
+            msg = await ctx.send(loading_msg)
         elif interaction:
             await interaction.response.send_message(loading_msg)
         
@@ -83,14 +84,16 @@ async def generate_image_once(prompt, ctx=None, interaction=None):
         embed = discord.Embed(title=f"🎨 ผลลัพธ์: {prompt}", color=discord.Color.green())
         embed.set_image(url=image_url)
         
-        if ctx:
-            await ctx.send(embed=embed)
+        if ctx and msg:
+            await msg.edit(content="", embed=embed)
         elif interaction:
             await interaction.followup.send(embed=embed)
             
     except Exception as e:
         error_msg = f"❌ เกิดข้อผิดพลาด: {str(e)}"
-        if ctx:
+        if ctx and msg:
+            await msg.edit(content=error_msg)
+        elif ctx:
             await ctx.send(error_msg)
         elif interaction:
             if interaction.response.is_done():
