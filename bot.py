@@ -115,11 +115,55 @@ async def draw(ctx, *, prompt):
 
 @bot.tree.command(name="image", description="Generate an image from text prompt")
 async def image_slash(interaction: discord.Interaction, prompt: str):
-    await generate_image_once(prompt, interaction=interaction)
+    global is_generating
+    
+    if is_generating:
+        await interaction.response.send_message("⏳ รอให้บอทสร้างภาพเสร็จก่อนนะ")
+        return
+    
+    is_generating = True
+    
+    try:
+        await interaction.response.defer()
+        
+        encoded_prompt = urllib.parse.quote(prompt)
+        image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+        
+        embed = discord.Embed(title=f"🎨 ผลลัพธ์: {prompt}", color=discord.Color.green())
+        embed.set_image(url=image_url)
+        
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        await interaction.followup.send(f"❌ เกิดข้อผิดพลาด: {str(e)}")
+    finally:
+        is_generating = False
 
 @bot.tree.command(name="draw", description="Draw an image using AI")
 async def draw_slash(interaction: discord.Interaction, prompt: str):
-    await generate_image_once(prompt, interaction=interaction)
+    global is_generating
+    
+    if is_generating:
+        await interaction.response.send_message("⏳ รอให้บอทสร้างภาพเสร็จก่อนนะ")
+        return
+    
+    is_generating = True
+    
+    try:
+        await interaction.response.defer()
+        
+        encoded_prompt = urllib.parse.quote(prompt)
+        image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+        
+        embed = discord.Embed(title=f"🎨 ผลลัพธ์: {prompt}", color=discord.Color.blue())
+        embed.set_image(url=image_url)
+        
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        await interaction.followup.send(f"❌ เกิดข้อผิดพลาด: {str(e)}")
+    finally:
+        is_generating = False
 
 # Member join event
 @bot.event
