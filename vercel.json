@@ -3,12 +3,10 @@
   "builds": [
     {
       "src": "discordbot/wsgi.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
+      "use": "@vercel/python"
     }
   ],
-  "installCommand": "pip3 install -r requirements.txt",
-  "buildCommand": "python3 manage.py collectstatic --noinput --clear",
+
   "routes": [
     {
       "src": "/static/(.*)",
