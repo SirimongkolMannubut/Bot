@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from requests import post
+from requests import post, get
 from os import getenv
 import html
 import json
@@ -32,8 +32,22 @@ def discord_callback(request):
         if response.status_code == 200:
             try:
                 token_info = response.json()
-                access_token = html.escape(str(token_info.get('access_token', 'No token')))
-                return HttpResponse(f"Success! Access Token: {access_token}")
+                access_token = token_info.get('access_token')
+                
+                if access_token:
+                    # Get user info from Discord API
+                    headers = {"Authorization": f"Bearer {access_token}"}
+                    user_response = get("https://discord.com/api/users/@me", headers=headers)
+                    
+                    if user_response.status_code == 200:
+                        user_info = user_response.json()
+                        username = html.escape(user_info.get('username', 'Unknown'))
+                        user_id = html.escape(str(user_info.get('id', 'Unknown')))
+                        return HttpResponse(f"Success! User: {username} (ID: {user_id})")
+                    else:
+                        return HttpResponse(f"Token valid but failed to get user info: {user_response.status_code}")
+                else:
+                    return HttpResponse("No access token received")
             except json.JSONDecodeError:
                 return HttpResponse("Invalid JSON response from Discord API", status=500)
         else:
