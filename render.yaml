@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: discord-bot-oauth2
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn discordbot.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.16
