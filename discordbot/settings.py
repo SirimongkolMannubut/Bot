@@ -33,7 +33,12 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-if6kgi@3y)ry(%++vs2b351zcq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_bool_env('DEBUG', True)
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'bot-sb53.onrender.com',
+    '.vercel.app'
+]
 
 
 # Application definition
