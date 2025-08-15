@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Bot Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 500px; width: 90%; text-align: center; }
+        .logo { width: 80px; height: 80px; background: #5865F2; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; }
+        h1 { color: #2c3e50; margin-bottom: 0.5rem; font-size: 1.8rem; }
+        .subtitle { color: #7f8c8d; margin-bottom: 2rem; }
+        .auth-btn { background: #5865F2; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s ease; }
+        .auth-btn:hover { background: #4752C4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4); }
+        .features { margin-top: 2rem; text-align: left; }
+        .feature { display: flex; align-items: center; margin-bottom: 1rem; color: #34495e; }
+        .feature::before { content: '✓'; color: #27ae60; font-weight: bold; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>Discord Bot Manager</h1>
+        <p class="subtitle">Connect and manage your Discord bot easily</p>
+        
+        <a href="https://discord.com/api/oauth2/authorize?client_id={{ client_id }}&redirect_uri={{ redirect_uri }}&response_type=code&scope=bot%20applications.commands" class="auth-btn">
+            🔗 Authorize Discord Bot
+        </a>
+        
+        <div class="features">
+            <div class="feature">Easy OAuth2 integration</div>
+            <div class="feature">Secure token management</div>
+            <div class="feature">Bot commands support</div>
+            <div class="feature">Real-time status monitoring</div>
+        </div>
+    </div>
+</body>
+</html>
